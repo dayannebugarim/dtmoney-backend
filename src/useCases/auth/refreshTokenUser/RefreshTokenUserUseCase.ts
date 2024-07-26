@@ -1,9 +1,9 @@
 import dayjs from "dayjs";
-import { MongoClient } from "../../database/MongoClient";
-import RefreshToken from "../../models/RefreshToken";
-import { GenerateToken } from "../../providers/GenerateToken";
+import { MongoClient } from "../../../database/MongoClient";
+import RefreshToken from "../../../models/RefreshToken";
+import { GenerateToken } from "../../../providers/GenerateToken";
 import { ObjectId } from "mongodb";
-import { GenerateRefreshToken } from "../../providers/GenerateRefreshToken";
+import { GenerateRefreshToken } from "../../../providers/GenerateRefreshToken";
 
 interface RefreshTokenUserRequest {
   refresh_token: string;

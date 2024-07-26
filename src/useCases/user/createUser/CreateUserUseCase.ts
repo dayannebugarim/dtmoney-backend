@@ -1,5 +1,5 @@
-import { MongoClient } from "../../database/MongoClient";
-import User from "../../models/User";
+import { MongoClient } from "../../../database/MongoClient";
+import User from "../../../models/User";
 import bcrypt from "bcryptjs";
 
 interface CreateUserRequest {
@@ -34,9 +34,9 @@ class CreateUserUseCase {
       throw new Error("User not created.");
     }
 
-    const { _id, ...rest } = user;
+    const { _id } = user;
 
-    return { id: _id.toHexString(), ...rest };
+    return { id: _id.toHexString() };
   }
 }
 

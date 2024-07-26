@@ -1,4 +1,4 @@
-export default interface Category {
+export default interface Goal {
   id: string;
   userId: string;
   name: string;

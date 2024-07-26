@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
-import { MongoClient } from "../../database/MongoClient";
-import User from "../../models/User";
+import { MongoClient } from "../../../database/MongoClient";
+import User from "../../../models/User";
 
 export type MongoUser = Omit<User, "id">;
 
