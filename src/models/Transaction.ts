@@ -1,10 +1,12 @@
+import { ObjectId } from "mongodb";
+
 export default interface Transaction {
   id: string;
-  userId: string;
+  userId: ObjectId;
   date: Date;
   value: number;
-  description: string;
+  description?: string;
   type: 'Income' | 'Expense';
-  categoryId?: string;
-  goalId?: string;
+  categoryId?: ObjectId;
+  goalId?: ObjectId;
 }

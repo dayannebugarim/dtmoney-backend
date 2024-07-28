@@ -1,22 +1,28 @@
 import { MongoClient } from "../../../database/MongoClient";
 import { ObjectId } from "mongodb";
 import User from "../../../models/User";
-import Category from "../../../models/Category";
+import Goal from "../../../models/Goal";
 
-interface CreateCategoryRequest {
+interface CreateGoalRequest {
   userId: string;
   name: string;
+  description?: string;
+  value: number;
+  endDate: string;
 }
 
 export type MongoUser = Omit<User, "id">;
-export type MongoCategory = Omit<Category, "id">;
+export type MongoGoal = Omit<Goal, "id">;
 
-class CreateCategoryUseCase {
+class CreateGoalUseCase {
   async execute({
     userId,
     name,
-  }: CreateCategoryRequest) {
-    if (!userId || !name) {
+    description,
+    value,
+    endDate,
+  }: CreateGoalRequest) {
+    if (!userId || !name || !value || !endDate) {
       throw new Error("Required value is missing");
     }
 
@@ -29,24 +35,28 @@ class CreateCategoryUseCase {
     }
 
     const { insertedId } = await MongoClient.db
-      .collection<MongoCategory>("categories")
+      .collection<MongoGoal>("goals")
       .insertOne({
         userId: new ObjectId(userId),
         name,
+        description,
+        value: +value,
+        createdAt: new Date(),
+        endDate: new Date(endDate),
       });
 
-    const category = await MongoClient.db
-      .collection<MongoCategory>("categories")
+    const goal = await MongoClient.db
+      .collection<MongoGoal>("goals")
       .findOne({ _id: insertedId });
 
-    if (!category) {
-      throw new Error("Category not created.");
+    if (!goal) {
+      throw new Error("Goal not created.");
     }
 
-    const { _id } = category;
+    const { _id } = goal;
 
     return { id: _id.toHexString() };
   }
 }
 
-export { CreateCategoryUseCase };
+export { CreateGoalUseCase };

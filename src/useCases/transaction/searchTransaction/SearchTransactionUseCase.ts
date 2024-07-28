@@ -2,6 +2,7 @@ import { MongoClient } from "../../../database/MongoClient";
 import Transaction from "../../../models/Transaction";
 import Category from "../../../models/Category";
 import Goal from "../../../models/Goal";
+import { ObjectId } from "mongodb";
 
 interface SearchTransactionRequest {
   userId: string | null;
@@ -19,11 +20,11 @@ interface DescriptionOptions {
 }
 
 interface SearchTransactionQuery {
-  userId: string;
-  categoryId?: string;
+  userId: ObjectId;
+  categoryId?: ObjectId;
   description?: DescriptionOptions;
   type?: "Income" | "Expense";
-  goalId?: string;
+  goalId?: ObjectId;
 }
 
 export type MongoTransaction = Omit<Transaction, "id">;
@@ -45,7 +46,7 @@ class SearchTransactionUseCase {
     }
 
     const query: SearchTransactionQuery = {
-      userId,
+      userId: new ObjectId(userId),
     };
 
     if (description) {
@@ -61,11 +62,11 @@ class SearchTransactionUseCase {
     }
 
     if (categoryId) {
-      query.categoryId = categoryId;
+      query.categoryId = new ObjectId(categoryId);
     }
 
     if (goalId) {
-      query.goalId = goalId;
+      query.goalId = new ObjectId(goalId);
     }
 
     const skip = (page - 1) * pageSize;

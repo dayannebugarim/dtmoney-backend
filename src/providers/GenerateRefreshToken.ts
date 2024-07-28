@@ -1,15 +1,16 @@
 import dayjs from "dayjs";
 import { MongoClient } from "../database/MongoClient";
 import RefreshToken from "../models/RefreshToken";
+import { ObjectId } from "mongodb";
 
 export type MongoRefreshToken = Omit<RefreshToken, "id">;
 
 class GenerateRefreshToken {
-  async execute(userId: string) {
+  async execute(userId: ObjectId) {
     const expiresIn = dayjs().add(15, "second").unix();
 
     const { insertedId } = await MongoClient.db
-      .collection("refresh_token")
+      .collection<MongoRefreshToken>("refresh_token")
       .insertOne({
         userId,
         expiresIn,

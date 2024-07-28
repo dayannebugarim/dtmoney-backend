@@ -47,7 +47,7 @@ class SetCategoryUseCase {
         },
         {
           $set: {
-            categoryId,
+            categoryId: new ObjectId(categoryId),
           },
         }
       );

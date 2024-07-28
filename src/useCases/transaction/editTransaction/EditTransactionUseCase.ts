@@ -14,8 +14,13 @@ interface EditTransactionRequest {
   goalId?: string;
 }
 
-interface TransactionData extends Omit<EditTransactionRequest, "id" | "date"> {
+interface TransactionData {
   date?: Date;
+  value?: number;
+  description?: string;
+  type?: "Income" | "Expense";
+  categoryId?: ObjectId;
+  goalId?: ObjectId;
 }
 
 export type MongoTransaction = Omit<Transaction, "id">;
@@ -59,13 +64,13 @@ class EditTransactionUseCase {
         throw new Error("Category not found");
       }
 
-      if (category.userId !== transaction.userId) {
+      if (category.userId.toHexString() !== transaction.userId.toHexString()) {
         throw new Error(
           "The user is not allowed to set this category for the transaction"
         );
       }
 
-      data.categoryId = categoryId;
+      data.categoryId = new ObjectId(categoryId);
     }
 
     if (goalId) {
@@ -77,13 +82,13 @@ class EditTransactionUseCase {
         throw new Error("Goal not found");
       }
 
-      if (goal.userId !== transaction.userId) {
+      if (goal.userId.toHexString() !== transaction.userId.toHexString()) {
         throw new Error(
           "The user is not allowed to set this goal for the transaction"
         );
       }
 
-      data.goalId = goalId;
+      data.goalId = new ObjectId(goalId);
     }
 
     if (date) {

@@ -4,6 +4,7 @@ import { compare } from "bcryptjs";
 import { GenerateRefreshToken } from "../../../providers/GenerateRefreshToken";
 import { GenerateToken } from "../../../providers/GenerateToken";
 import RefreshToken from "../../../models/RefreshToken";
+import { ObjectId } from "mongodb";
 
 interface AuthenticateUserRequest {
   email: string;
@@ -35,12 +36,12 @@ class AuthenticateUserUseCase {
     await MongoClient.db
       .collection<MongoRefreshToken>("refresh_token")
       .deleteMany({
-        userId: `${userExists._id}`,
+        userId: new ObjectId(userExists._id),
       });
 
     const generateRefreshToken = new GenerateRefreshToken();
     const refreshToken = await generateRefreshToken.execute(
-      `${userExists._id}`
+      userExists._id
     );
 
     return { token, refreshToken };

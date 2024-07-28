@@ -26,7 +26,7 @@ class ListCategoriesUseCase {
 
     const categories = MongoClient.db
       .collection<MongoCategory>("categories")
-      .find({ userId });
+      .find({ userId: new ObjectId(userId) });
 
     const results = await categories.toArray();
 

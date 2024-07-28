@@ -1,5 +1,7 @@
+import { ObjectId } from "mongodb";
+
 export default interface Category {
   id: string;
-  userId: string;
+  userId: ObjectId;
   name: string;
 }

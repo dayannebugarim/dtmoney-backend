@@ -26,7 +26,7 @@ class RefreshTokenUserUseCase {
     );
 
     const generateToken = new GenerateToken();
-    const token = await generateToken.execute(refreshToken.userId);
+    const token = await generateToken.execute(refreshToken.userId.toHexString());
 
     if (refreshTokenExpired) {
       await MongoClient.db

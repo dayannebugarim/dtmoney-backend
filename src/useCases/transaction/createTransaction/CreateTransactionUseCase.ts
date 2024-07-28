@@ -8,7 +8,7 @@ import Goal from "../../../models/Goal";
 interface CreateTransactionRequest {
   userId: string;
   value: number;
-  description: string;
+  description?: string;
   type: "Income" | "Expense";
   categoryId?: string;
   goalId?: string;
@@ -28,7 +28,7 @@ class CreateTransactionUseCase {
     categoryId,
     goalId,
   }: CreateTransactionRequest) {
-    if (!userId || !value || !description || !type) {
+    if (!userId || !value || !type) {
       throw new Error("Required value is missing");
     }
 
@@ -44,6 +44,13 @@ class CreateTransactionUseCase {
       throw new Error("Transaction type is invalid");
     }
 
+    const data: MongoTransaction = {
+      userId: new ObjectId(userId),
+      date: new Date(),
+      value,
+      type,
+      description,
+    }
 
     if (categoryId) {
       const category = await MongoClient.db
@@ -54,9 +61,11 @@ class CreateTransactionUseCase {
         throw new Error("Category not found");
       }
 
-      if (category.userId !== userId) {
+      if (category.userId.toHexString() !== userId) {
         throw new Error("The user is not allowed to set this category for the transaction");
       }
+
+      data.categoryId = new ObjectId(categoryId)
     }
 
     if (goalId) {
@@ -68,22 +77,16 @@ class CreateTransactionUseCase {
         throw new Error("Goal not found");
       }
   
-      if (goal.userId !== userId) {
+      if (goal.userId.toHexString() !== userId) {
         throw new Error("The user is not allowed to set this goal for the transaction");
       }
+
+      data.goalId = new ObjectId(goalId)
     }
 
     const { insertedId } = await MongoClient.db
       .collection<MongoTransaction>("transactions")
-      .insertOne({
-        userId,
-        date: new Date(),
-        value,
-        type,
-        description,
-        categoryId,
-        goalId,
-      });
+      .insertOne(data);
 
     const transaction = await MongoClient.db
       .collection<MongoTransaction>("transactions")
