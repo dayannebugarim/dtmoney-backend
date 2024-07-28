@@ -4,7 +4,7 @@ import Category from "../../../models/Category";
 import Goal from "../../../models/Goal";
 
 interface SearchTransactionRequest {
-  userId: string;
+  userId: string | null;
   description?: string;
   type?: string;
   categoryId?: string;
@@ -78,7 +78,13 @@ class SearchTransactionUseCase {
 
     const results = await transactionsCursor.toArray();
 
-    return results;
+    const transformedResults = results.map(category => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { _id, userId, ...rest } = category;
+      return { id: _id, ...rest };
+    });
+
+    return transformedResults;
   }
 }
 

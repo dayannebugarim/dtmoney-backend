@@ -9,7 +9,7 @@ class SearchTransactionController {
     const serachTransactionUseCase = new SearchTransactionUseCase();
 
     const user = await serachTransactionUseCase.execute({
-      userId: userId?.toString() || "",
+      userId: userId?.toString() || null,
       description: description?.toString(),
       type: type?.toString(),
       categoryId: categoryId?.toString(),
