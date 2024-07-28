@@ -2,6 +2,7 @@ import { Router } from "express";
 import { CreateTransactionController } from "../useCases/transaction/createTransaction/CreateTransactionController";
 import { ensureAuthenticated } from "../middlewares/ensureAuthenticated";
 import { SearchTransactionController } from "../useCases/transaction/searchTransaction/SearchTransactionController";
+import { ListCategoriesController } from "../useCases/transaction/listCategories/ListCategoriesController";
 import { CreateCategoryController } from "../useCases/transaction/createCategory/CreateCategoryController";
 import { SetCategoryController } from "../useCases/transaction/setCategory/SetCategoryController";
 import { EditTransactionController } from "../useCases/transaction/editTransaction/EditTransactionController";
@@ -13,6 +14,7 @@ const searchTransactionController = new SearchTransactionController();
 const createTransactionUseCase = new CreateTransactionController();
 const editTransactionUseCase = new EditTransactionController();
 const deleteTransactionUseCase = new DeleteTransactionController();
+const listCategoriesController = new ListCategoriesController();
 const createCategoryController = new CreateCategoryController();
 const setCategoryController = new SetCategoryController();
 
@@ -38,6 +40,12 @@ transactionRoutes.delete(
   "/:id",
   ensureAuthenticated,
   deleteTransactionUseCase.handle
+);
+
+transactionRoutes.get(
+  "/category",
+  ensureAuthenticated,
+  listCategoriesController.handle
 );
 
 transactionRoutes.post(
