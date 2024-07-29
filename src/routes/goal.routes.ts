@@ -8,28 +8,28 @@ import { DeleteGoalController } from "../useCases/goal/deleteGoal/DeleteGoalCont
 
 const goalRoutes = Router();
 
-const createGoalUseCase = new CreateGoalController();
-const listGoalsUseCase = new ListGoalsController();
-const getGoalUseCase = new GetGoalController();
+const createGoalController = new CreateGoalController();
+const listGoalsController = new ListGoalsController();
+const getGoalController = new GetGoalController();
 const editGoalController = new EditGoalController();
 const deleteGoalController = new DeleteGoalController();
 
 goalRoutes.post(
   "/",
   ensureAuthenticated,
-  createGoalUseCase.handle
+  createGoalController.handle
 );
 
 goalRoutes.get(
   "/",
   ensureAuthenticated,
-  listGoalsUseCase.handle
+  listGoalsController.handle
 );
 
 goalRoutes.get(
   "/:id",
   ensureAuthenticated,
-  getGoalUseCase.handle
+  getGoalController.handle
 );
 
 goalRoutes.put(

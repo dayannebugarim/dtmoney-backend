@@ -11,9 +11,9 @@ import { DeleteTransactionController } from "../useCases/transaction/deleteTrans
 const transactionRoutes = Router();
 
 const searchTransactionController = new SearchTransactionController();
-const createTransactionUseCase = new CreateTransactionController();
-const editTransactionUseCase = new EditTransactionController();
-const deleteTransactionUseCase = new DeleteTransactionController();
+const createTransactionController = new CreateTransactionController();
+const editTransactionController = new EditTransactionController();
+const deleteTransactionController = new DeleteTransactionController();
 const listCategoriesController = new ListCategoriesController();
 const createCategoryController = new CreateCategoryController();
 const setCategoryController = new SetCategoryController();
@@ -27,19 +27,19 @@ transactionRoutes.get(
 transactionRoutes.post(
   "/",
   ensureAuthenticated,
-  createTransactionUseCase.handle
+  createTransactionController.handle
 );
 
 transactionRoutes.put(
   "/:id",
   ensureAuthenticated,
-  editTransactionUseCase.handle
+  editTransactionController.handle
 );
 
 transactionRoutes.delete(
   "/:id",
   ensureAuthenticated,
-  deleteTransactionUseCase.handle
+  deleteTransactionController.handle
 );
 
 transactionRoutes.get(
