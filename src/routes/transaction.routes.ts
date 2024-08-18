@@ -7,6 +7,8 @@ import { CreateCategoryController } from "../useCases/transaction/createCategory
 import { SetCategoryController } from "../useCases/transaction/setCategory/SetCategoryController";
 import { EditTransactionController } from "../useCases/transaction/editTransaction/EditTransactionController";
 import { DeleteTransactionController } from "../useCases/transaction/deleteTransaction/DeleteTransactionController";
+import { GetSummaryController } from "../useCases/transaction/getSummary/GetSummaryController";
+import { GetSummaryByPeriodController } from "../useCases/transaction/getSummaryByPeriod/GetSummaryByPeriodController";
 
 const transactionRoutes = Router();
 
@@ -17,6 +19,8 @@ const deleteTransactionController = new DeleteTransactionController();
 const listCategoriesController = new ListCategoriesController();
 const createCategoryController = new CreateCategoryController();
 const setCategoryController = new SetCategoryController();
+const getSummaryController = new GetSummaryController()
+const getSummaryByPeriodController = new GetSummaryByPeriodController()
 
 transactionRoutes.get(
   "/",
@@ -58,6 +62,18 @@ transactionRoutes.put(
   "/category",
   ensureAuthenticated,
   setCategoryController.handle
+);
+
+transactionRoutes.get(
+  "/summary/:userId",
+  ensureAuthenticated,
+  getSummaryController.handle
+);
+
+transactionRoutes.get(
+  "/periodicSummary/:userId",
+  ensureAuthenticated,
+  getSummaryByPeriodController.handle
 );
 
 export { transactionRoutes };
