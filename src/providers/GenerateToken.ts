@@ -4,8 +4,8 @@ import { sign } from "jsonwebtoken";
 export type MongoRefreshToken = Omit<RefreshToken, "id">;
 
 class GenerateToken {
-  async execute(userId: string) {
-    const token = sign({}, `${process.env.SECRET}`, {
+  async execute(userId: string, name: string, email: string) {
+    const token = sign({ id: userId, name, email }, `${process.env.SECRET}`, {
       subject: `${userId}`,
       expiresIn: "20s",
     });

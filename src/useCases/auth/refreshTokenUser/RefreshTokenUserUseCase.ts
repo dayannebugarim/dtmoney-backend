@@ -4,12 +4,14 @@ import RefreshToken from "../../../models/RefreshToken";
 import { GenerateToken } from "../../../providers/GenerateToken";
 import { ObjectId } from "mongodb";
 import { GenerateRefreshToken } from "../../../providers/GenerateRefreshToken";
+import User from "../../../models/User";
 
 interface RefreshTokenUserRequest {
   refresh_token: string;
 }
 
 export type MongoRefreshToken = Omit<RefreshToken, "id">;
+export type MongoUser = Omit<User, "password">;
 
 class RefreshTokenUserUseCase {
   async execute({ refresh_token }: RefreshTokenUserRequest) {
@@ -25,8 +27,20 @@ class RefreshTokenUserUseCase {
       dayjs.unix(refreshToken.expiresIn)
     );
 
+    const userExists = await MongoClient.db
+      .collection<MongoUser>("users")
+      .findOne({ _id: refreshToken.userId });
+
+    if (!userExists) {
+      throw new Error("User not found.");
+    }
+
     const generateToken = new GenerateToken();
-    const token = await generateToken.execute(refreshToken.userId.toHexString());
+    const token = await generateToken.execute(
+      refreshToken.userId.toHexString(),
+      userExists.name,
+      userExists.email
+    );
 
     if (refreshTokenExpired) {
       await MongoClient.db

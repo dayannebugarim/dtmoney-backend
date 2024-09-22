@@ -31,7 +31,11 @@ class AuthenticateUserUseCase {
     }
 
     const generateToken = new GenerateToken();
-    const token = await generateToken.execute(`${userExists._id}`);
+    const token = await generateToken.execute(
+      `${userExists._id}`,
+      userExists.name,
+      userExists.email
+    );
 
     await MongoClient.db
       .collection<MongoRefreshToken>("refresh_token")
@@ -40,9 +44,7 @@ class AuthenticateUserUseCase {
       });
 
     const generateRefreshToken = new GenerateRefreshToken();
-    const refreshToken = await generateRefreshToken.execute(
-      userExists._id
-    );
+    const refreshToken = await generateRefreshToken.execute(userExists._id);
 
     return { token, refreshToken };
   }
