@@ -7,7 +7,7 @@ export type MongoRefreshToken = Omit<RefreshToken, "id">;
 
 class GenerateRefreshToken {
   async execute(userId: ObjectId) {
-    const expiresIn = dayjs().add(15, "second").unix();
+    const expiresIn = dayjs().add(7, "days").unix();
 
     const { insertedId } = await MongoClient.db
       .collection<MongoRefreshToken>("refresh_token")
