@@ -73,16 +73,77 @@ class SearchTransactionUseCase {
 
     const transactionsCursor = MongoClient.db
       .collection<MongoTransaction>("transactions")
-      .find(query)
-      .skip(skip)
-      .limit(pageSize);
+      .aggregate([
+        { $match: query },
+        { $skip: skip },
+        { $limit: pageSize },
+        {
+          $lookup: {
+            from: "categories",
+            localField: "categoryId",
+            foreignField: "_id",
+            as: "categoryInfo",
+          },
+        },
+        {
+          $unwind: {
+            path: "$categoryInfo",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $lookup: {
+            from: "goals",
+            localField: "goalId",
+            foreignField: "_id",
+            as: "goalInfo",
+          },
+        },
+        {
+          $unwind: {
+            path: "$goalInfo",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            userId: 1,
+            description: 1,
+            type: 1,
+            value: 1,
+            categoryId: 1,
+            "categoryInfo.name": 1,
+            goalId: 1,
+            "goalInfo.name": 1,
+            createdAt: 1,
+          },
+        },
+      ]);
 
     const results = await transactionsCursor.toArray();
 
-    const transformedResults = results.map(category => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { _id, userId, ...rest } = category;
-      return { id: _id, ...rest };
+    const transformedResults = results.map((transaction) => {
+      const {
+        _id,
+        categoryInfo = {},
+        goalInfo = {},
+      } = transaction;
+
+      return {
+        id: _id,
+        category: {
+          id: transaction.categoryId,
+          name: categoryInfo.name || null,
+        },
+        goal: {
+          id: transaction.goalId,
+          name: goalInfo.name || null,
+        },
+        value: transaction.value,
+        type: transaction.type,
+        description: transaction.description,
+      };
     });
 
     return transformedResults;
