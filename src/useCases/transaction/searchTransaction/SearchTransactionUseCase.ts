@@ -112,6 +112,7 @@ class SearchTransactionUseCase {
             description: 1,
             type: 1,
             value: 1,
+            date: 1,
             categoryId: 1,
             "categoryInfo.name": 1,
             goalId: 1,
@@ -133,13 +134,14 @@ class SearchTransactionUseCase {
       return {
         id: _id,
         category: {
-          id: transaction.categoryId,
+          id: transaction.categoryId || null,
           name: categoryInfo.name || null,
         },
         goal: {
-          id: transaction.goalId,
+          id: transaction.goalId || null,
           name: goalInfo.name || null,
         },
+        date: transaction.date,
         value: transaction.value,
         type: transaction.type,
         description: transaction.description,
