@@ -19,3 +19,7 @@ export const MongoClient = {
     console.log("Connected to MongoDB!");
   },
 };
+
+export async function createConnection() {
+  await MongoClient.connect();
+}

@@ -7,7 +7,7 @@ class GenerateToken {
   async execute(userId: string, name: string, email: string) {
     const token = sign({ id: userId, name, email }, `${process.env.SECRET}`, {
       subject: `${userId}`,
-      expiresIn: "20s",
+      expiresIn: "1m"
     });
 
     return token;

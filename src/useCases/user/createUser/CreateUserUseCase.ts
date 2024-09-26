@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MongoClient } from "../../../database/MongoClient";
+import { AppError } from "../../../errors/AppError";
 import User from "../../../models/User";
 import bcrypt from "bcryptjs";
 
@@ -12,31 +14,39 @@ export type MongoUser = Omit<User, "id">;
 
 class CreateUserUseCase {
   async execute({ name, email, password }: CreateUserRequest) {
-    const userExists = await MongoClient.db
-      .collection<MongoUser>("users")
-      .findOne({ email });
+    try {
+      const userExists = await MongoClient.db
+        .collection<MongoUser>("users")
+        .findOne({ email });
 
-    if (userExists) {
-      throw new Error("Email already registered.");
+      if (userExists) {
+        throw new AppError("Email already registered.");
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const { insertedId } = await MongoClient.db
+        .collection("users")
+        .insertOne({ name, email, password: hashedPassword });
+
+      const user = await MongoClient.db
+        .collection<MongoUser>("users")
+        .findOne({ _id: insertedId });
+
+      if (!user) {
+        throw new AppError("User not created.");
+      }
+
+      const { _id } = user;
+
+      return { id: _id.toHexString() };
+    } catch (error: any) {
+      if (!(error instanceof AppError)) {
+        throw new AppError(error.message, 500);
+      }
+
+      throw error;
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const { insertedId } = await MongoClient.db
-      .collection("users")
-      .insertOne({ name, email, password: hashedPassword });
-
-    const user = await MongoClient.db
-      .collection<MongoUser>("users")
-      .findOne({ _id: insertedId });
-
-    if (!user) {
-      throw new Error("User not created.");
-    }
-
-    const { _id } = user;
-
-    return { id: _id.toHexString() };
   }
 }
 

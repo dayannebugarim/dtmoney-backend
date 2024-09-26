@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import { MongoClient } from "../database/MongoClient";
 import RefreshToken from "../models/RefreshToken";
 import { ObjectId } from "mongodb";
+import { AppError } from "../errors/AppError";
 
 export type MongoRefreshToken = Omit<RefreshToken, "id">;
 
@@ -21,7 +22,7 @@ class GenerateRefreshToken {
       .findOne({ _id: insertedId });
 
     if (!refreshToken) {
-      throw new Error("Refresh token not created.");
+      throw new AppError("Refresh token not created.");
     }
 
     const { _id, ...rest } = refreshToken;

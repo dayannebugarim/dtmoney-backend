@@ -1,28 +1,43 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import { config } from "dotenv";
 import cors from "cors";
-import { MongoClient } from "./database/MongoClient";
+import { createConnection } from "./database/MongoClient";
 import { router } from "./routes";
+import { AppError } from "./errors/AppError";
+import "express-async-errors";
 
-const main = async () => {
-  config();
-  const app = express();
-  await MongoClient.connect();
-  const port = process.env.PORT || 8000;
+config();
+const app = express();
+createConnection();
+const port = process.env.PORT || 8000;
 
-  app.use(express.json());
-  app.use(
-    cors({
-      origin: "*",
-      methods: ["GET", "POST", "PUT", "DELETE"],
-      credentials: true,
-    })
-  );
-  app.use(router);
+app.use(express.json());
+app.use(express.urlencoded({ limit: "500mb", extended: true }));
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
+app.use(router);
 
-  app.listen(port, () => {
-    console.log(`Running at http://localhost:${port}`);
-  });
-};
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use(
+  (err: Error, request: Request, response: Response, next: NextFunction) => {
+    if (err instanceof AppError) {
+      return response.status(err.statusCode).json({
+        message: err.message,
+      });
+    }
 
-main();
+    return response.status(500).json({
+      status: "error",
+      message: `Internal server error - ${err.message}`,
+    });
+  }
+);
+
+app.listen(port, () => {
+  console.log(`Running at http://localhost:${port}`);
+});

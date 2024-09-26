@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MongoClient } from "../../../database/MongoClient";
 import Transaction from "../../../models/Transaction";
 import Category from "../../../models/Category";
 import Goal from "../../../models/Goal";
 import { ObjectId } from "mongodb";
+import { AppError } from "../../../errors/AppError";
 
 interface SearchTransactionRequest {
   userId: string | null;
@@ -41,114 +43,118 @@ class SearchTransactionUseCase {
     page = 1,
     pageSize = 10,
   }: SearchTransactionRequest) {
-    if (!userId) {
-      throw new Error("Required value is missing");
-    }
+    try {
+      if (!userId) {
+        throw new AppError("Required value is missing");
+      }
 
-    const query: SearchTransactionQuery = {
-      userId: new ObjectId(userId),
-    };
-
-    if (description) {
-      query.description = { $regex: description, $options: "i" };
-    }
-
-    if (type && type !== "Income" && type !== "Expense") {
-      throw new Error("Transaction type is invalid");
-    }
-
-    if (type) {
-      query.type = type as Transaction["type"];
-    }
-
-    if (categoryId) {
-      query.categoryId = new ObjectId(categoryId);
-    }
-
-    if (goalId) {
-      query.goalId = new ObjectId(goalId);
-    }
-
-    const skip = (page - 1) * pageSize;
-
-    const transactionsCursor = MongoClient.db
-      .collection<MongoTransaction>("transactions")
-      .aggregate([
-        { $match: query },
-        { $skip: skip },
-        { $limit: pageSize },
-        {
-          $lookup: {
-            from: "categories",
-            localField: "categoryId",
-            foreignField: "_id",
-            as: "categoryInfo",
-          },
-        },
-        {
-          $unwind: {
-            path: "$categoryInfo",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $lookup: {
-            from: "goals",
-            localField: "goalId",
-            foreignField: "_id",
-            as: "goalInfo",
-          },
-        },
-        {
-          $unwind: {
-            path: "$goalInfo",
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            userId: 1,
-            description: 1,
-            type: 1,
-            value: 1,
-            date: 1,
-            categoryId: 1,
-            "categoryInfo.name": 1,
-            goalId: 1,
-            "goalInfo.name": 1,
-            createdAt: 1,
-          },
-        },
-      ]);
-
-    const results = await transactionsCursor.toArray();
-
-    const transformedResults = results.map((transaction) => {
-      const {
-        _id,
-        categoryInfo = {},
-        goalInfo = {},
-      } = transaction;
-
-      return {
-        id: _id,
-        category: {
-          id: transaction.categoryId || null,
-          name: categoryInfo.name || null,
-        },
-        goal: {
-          id: transaction.goalId || null,
-          name: goalInfo.name || null,
-        },
-        date: transaction.date,
-        value: transaction.value,
-        type: transaction.type,
-        description: transaction.description,
+      const query: SearchTransactionQuery = {
+        userId: new ObjectId(userId),
       };
-    });
 
-    return transformedResults;
+      if (description) {
+        query.description = { $regex: description, $options: "i" };
+      }
+
+      if (type && type !== "Income" && type !== "Expense") {
+        throw new AppError("Transaction type is invalid");
+      }
+
+      if (type) {
+        query.type = type as Transaction["type"];
+      }
+
+      if (categoryId) {
+        query.categoryId = new ObjectId(categoryId);
+      }
+
+      if (goalId) {
+        query.goalId = new ObjectId(goalId);
+      }
+
+      const skip = (page - 1) * pageSize;
+
+      const transactionsCursor = MongoClient.db
+        .collection<MongoTransaction>("transactions")
+        .aggregate([
+          { $match: query },
+          { $skip: skip },
+          { $limit: pageSize },
+          {
+            $lookup: {
+              from: "categories",
+              localField: "categoryId",
+              foreignField: "_id",
+              as: "categoryInfo",
+            },
+          },
+          {
+            $unwind: {
+              path: "$categoryInfo",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
+            $lookup: {
+              from: "goals",
+              localField: "goalId",
+              foreignField: "_id",
+              as: "goalInfo",
+            },
+          },
+          {
+            $unwind: {
+              path: "$goalInfo",
+              preserveNullAndEmptyArrays: true,
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              userId: 1,
+              description: 1,
+              type: 1,
+              value: 1,
+              date: 1,
+              categoryId: 1,
+              "categoryInfo.name": 1,
+              goalId: 1,
+              "goalInfo.name": 1,
+              createdAt: 1,
+            },
+          },
+        ]);
+
+      const results = await transactionsCursor.toArray();
+
+      const transformedResults = results.map((transaction) => {
+        const { _id, categoryInfo = {}, goalInfo = {} } = transaction;
+
+        return {
+          id: _id,
+          category: {
+            id: transaction.categoryId || null,
+            name: categoryInfo.name || null,
+          },
+          goal: {
+            id: transaction.goalId || null,
+            name: goalInfo.name || null,
+          },
+          date: transaction.date,
+          value: transaction.value,
+          type: transaction.type,
+          description: transaction.description,
+        };
+      });
+
+      return transformedResults;
+    } catch (error: any) {
+      if (!(error instanceof AppError)) {
+        throw new AppError(error.message, 500);
+      }
+
+      throw error;
+    }
   }
 }
 
