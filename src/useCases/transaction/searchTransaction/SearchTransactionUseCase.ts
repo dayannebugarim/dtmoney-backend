@@ -72,6 +72,10 @@ class SearchTransactionUseCase {
         query.goalId = new ObjectId(goalId);
       }
 
+      const totalTransactions = await MongoClient.db
+        .collection<MongoTransaction>("transactions")
+        .countDocuments(query);
+
       const skip = (page - 1) * pageSize;
 
       const transactionsCursor = MongoClient.db
@@ -102,12 +106,7 @@ class SearchTransactionUseCase {
               as: "goalInfo",
             },
           },
-          {
-            $unwind: {
-              path: "$goalInfo",
-              preserveNullAndEmptyArrays: true,
-            },
-          },
+          { $unwind: { path: "$goalInfo", preserveNullAndEmptyArrays: true } },
           {
             $project: {
               _id: 1,
@@ -147,12 +146,16 @@ class SearchTransactionUseCase {
         };
       });
 
-      return transformedResults;
+      const totalPages = Math.ceil(totalTransactions / pageSize);
+
+      return {
+        transactions: transformedResults,
+        totalPages,
+      };
     } catch (error: any) {
       if (!(error instanceof AppError)) {
         throw new AppError(error.message, 500);
       }
-
       throw error;
     }
   }
