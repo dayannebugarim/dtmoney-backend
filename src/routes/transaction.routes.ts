@@ -8,7 +8,7 @@ import { SetCategoryController } from "../useCases/transaction/setCategory/SetCa
 import { EditTransactionController } from "../useCases/transaction/editTransaction/EditTransactionController";
 import { DeleteTransactionController } from "../useCases/transaction/deleteTransaction/DeleteTransactionController";
 import { GetSummaryController } from "../useCases/transaction/getSummary/GetSummaryController";
-import { GetSummaryByPeriodController } from "../useCases/transaction/getSummaryByPeriod/GetSummaryByPeriodController";
+import { GetYearSummaryController } from "../useCases/transaction/getYearSummary/GetYearSummaryController";
 
 const transactionRoutes = Router();
 
@@ -20,7 +20,7 @@ const listCategoriesController = new ListCategoriesController();
 const createCategoryController = new CreateCategoryController();
 const setCategoryController = new SetCategoryController();
 const getSummaryController = new GetSummaryController()
-const getSummaryByPeriodController = new GetSummaryByPeriodController()
+const getYearSummaryController = new GetYearSummaryController()
 
 transactionRoutes.get(
   "/",
@@ -71,9 +71,9 @@ transactionRoutes.get(
 );
 
 transactionRoutes.get(
-  "/periodicSummary/:userId",
+  "/summary/year/:userId",
   ensureAuthenticated,
-  getSummaryByPeriodController.handle
+  getYearSummaryController.handle
 );
 
 export { transactionRoutes };
