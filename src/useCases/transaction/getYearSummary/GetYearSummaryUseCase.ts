@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { startOfYear, endOfToday, eachDayOfInterval, format } from "date-fns";
 import { MongoClient } from "../../../database/MongoClient";
 import { ObjectId } from "mongodb";
 import User from "../../../models/User";
 import Transaction from "../../../models/Transaction";
 import { AppError } from "../../../errors/AppError";
-import { startOfYear, endOfToday, eachDayOfInterval, format } from "date-fns";
 
 interface GetYearSummaryRequest {
   userId: string | null;
@@ -45,7 +45,7 @@ class GetYearSummaryUseCase {
         },
         {
           $group: {
-            _id: { date: { $dateToString: { format: "%Y-%m-%d", date: "$date" } } },
+            _id: { date: { $dateToString: { format: "%Y-%m-%d", date: "$date", timezone: "America/Fortaleza" } } },
             totalIncome: {
               $sum: {
                 $cond: [{ $eq: ["$type", "Income"] }, "$value", 0],
@@ -90,7 +90,6 @@ class GetYearSummaryUseCase {
       if (!(error instanceof AppError)) {
         throw new AppError(error.message, 500);
       }
-
       throw error;
     }
   }
