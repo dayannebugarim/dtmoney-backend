@@ -82,6 +82,7 @@ class SearchTransactionUseCase {
         .collection<MongoTransaction>("transactions")
         .aggregate([
           { $match: query },
+          { $sort: { date: -1 } },
           { $skip: skip },
           { $limit: pageSize },
           {
