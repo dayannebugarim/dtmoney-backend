@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import express, { NextFunction, Request, Response } from "express";
 import { config } from "dotenv";
 import cors from "cors";
@@ -27,16 +28,22 @@ app.use(
   (err: Error, request: Request, response: Response, next: NextFunction) => {
     if (err instanceof AppError) {
       return response.status(err.statusCode).json({
+        status: "error",
         message: err.message,
       });
     }
 
     return response.status(500).json({
       status: "error",
-      message: `Internal server error - ${err.message}`,
+      message: `Internal server error: ${err.message}`,
     });
   }
 );
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection at:", promise, "reason:", reason);
+  // process.exit(1);
+});
 
 app.listen(port, () => {
   console.log(`Running at http://localhost:${port}`);

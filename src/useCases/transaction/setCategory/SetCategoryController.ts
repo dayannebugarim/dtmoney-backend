@@ -1,19 +1,22 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { SetCategoryUseCase } from "./SetCategoryUseCase";
 
 class SetCategoryController {
-  async handle(req: Request, res: Response) {
-    const { categoryId, transactionId } =
-      await req.body;
+  async handle(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { categoryId, transactionId } = await req.body;
 
-    const setCategoryUseCase = new SetCategoryUseCase();
+      const setCategoryUseCase = new SetCategoryUseCase();
 
-    const user = await setCategoryUseCase.execute({
-      categoryId,
-      transactionId,
-    });
+      const user = await setCategoryUseCase.execute({
+        categoryId,
+        transactionId,
+      });
 
-    return res.json(user);
+      return res.json(user);
+    } catch (error) {
+      next(error);
+    }
   }
 }
 

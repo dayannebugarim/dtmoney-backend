@@ -1,20 +1,24 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { CreateUserUseCase } from "./CreateUserUseCase";
 
 class CreateUserController {
-  async handle(req: Request, res: Response) {
-    const { name, email, password } = await req.body;
+  async handle(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { name, email, password } = await req.body;
 
-    const createUserUseCase = new CreateUserUseCase();
+      const createUserUseCase = new CreateUserUseCase();
 
-    const user = await createUserUseCase.execute({
-      name,
-      email,
-      password,
-    });
+      const user = await createUserUseCase.execute({
+        name,
+        email,
+        password,
+      });
 
-    return res.json(user);
+      return res.json(user);
+    } catch (error) {
+      next(error);
+    }
   }
 }
 
-export { CreateUserController }
+export { CreateUserController };

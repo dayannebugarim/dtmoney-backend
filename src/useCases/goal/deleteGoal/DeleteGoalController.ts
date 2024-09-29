@@ -1,17 +1,21 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { DeleteGoalUseCase } from "./DeleteGoalUseCase";
 
 class DeleteGoalController {
-  async handle(req: Request, res: Response) {
-    const { id } = req.params;
+  async handle(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { id } = req.params;
 
-    const deleteGoalUseCase = new DeleteGoalUseCase();
+      const deleteGoalUseCase = new DeleteGoalUseCase();
 
-    const user = await deleteGoalUseCase.execute({
-      id,
-    });
+      const user = await deleteGoalUseCase.execute({
+        id,
+      });
 
-    return res.json(user);
+      return res.json(user);
+    } catch (error) {
+      next(error);
+    }
   }
 }
 

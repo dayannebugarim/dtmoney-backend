@@ -1,17 +1,21 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { GetSummaryUseCase } from "./GetSummaryUseCase";
 
 class GetSummaryController {
-  async handle(req: Request, res: Response) {
-    const { userId } = req.params;
+  async handle(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { userId } = req.params;
 
-    const getSummaryUseCase = new GetSummaryUseCase();
+      const getSummaryUseCase = new GetSummaryUseCase();
 
-    const user = await getSummaryUseCase.execute({
-      userId,
-    });
+      const user = await getSummaryUseCase.execute({
+        userId,
+      });
 
-    return res.json(user);
+      return res.json(user);
+    } catch (error) {
+      next(error);
+    }
   }
 }
 
