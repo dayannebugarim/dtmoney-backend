@@ -24,13 +24,13 @@ class AuthenticateUserUseCase {
         .findOne({ email });
 
       if (!userExists) {
-        throw new AppError("Email ou senha incorretos.");
+        throw new AppError("Email ou senha incorreto.");
       }
 
       const passwordMatch = await compare(password, userExists.password);
 
       if (!passwordMatch) {
-        throw new AppError("Email ou senha incorretos.");
+        throw new AppError("Email ou senha incorreto.");
       }
 
       const generateToken = new GenerateToken();

@@ -20,7 +20,7 @@ class CreateUserUseCase {
         .findOne({ email });
 
       if (userExists) {
-        throw new AppError("Email already registered.");
+        throw new AppError("O email já está em uso.");
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -34,7 +34,7 @@ class CreateUserUseCase {
         .findOne({ _id: insertedId });
 
       if (!user) {
-        throw new AppError("User not created.");
+        throw new AppError("Erro ao criar usuário.");
       }
 
       const { _id } = user;
